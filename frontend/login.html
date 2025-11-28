@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>TaskFlow</title>
+
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: Arial, Helvetica, sans-serif;
+      }
+      .login-scetion {
+        width: 600px;
+        margin: 50px auto;
+        height: 500px;
+        padding: 20px;
+        border: 1px solid #ccc;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      }
+
+      .login-scetion h1 {
+        text-align: left;
+        margin-bottom: 10px;
+      }
+      .login-scetion p {
+        text-align: left;
+        margin-bottom: 30px;
+        color: #555;
+      }
+
+      .login-scetion .LS {
+        display: flex;
+        flex-direction: row;
+        margin-bottom: 30px;
+        width: 90%;
+        height: 40px;
+        border: 1.3px solid #ccc;
+        border-radius: 8px;
+        justify-content: space-between;
+        margin-left: 12px;
+        padding: 2px;
+      }
+
+      .LS .ls-1 {
+        align-items: center;
+        justify-content: center;
+        width: 48%;
+        cursor: pointer;
+        border-right: 1.3px solid #ccc;
+        background-color: rgb(216, 224, 231);
+        height: 30px;
+        border-radius: 6px;
+        margin-top: 3px;
+      }
+
+      .LS .ls-1 p {
+        font-size: 16px;
+        text-align: center;
+        padding-top: 3.5px;
+      }
+
+      .LS .ls-2 {
+        align-items: center;
+        justify-content: center;
+        width: 48%;
+        cursor: pointer;
+        height: 30px;
+        border-radius: 6px;
+        margin-top: 3px;
+      }
+
+      .LS .ls-2 p {
+        font-size: 16px;
+        text-align: center;
+        padding-top: 2px;
+      }
+      .login-section1 form {
+        display: flex;
+        flex-direction: column;
+        width: 90%;
+        margin-left: 12px;
+      }
+      .login-section1 label {
+        margin-bottom: 12px;
+        font-size: 14px;
+      }
+      .login-section1 input {
+        margin-bottom: 20px;
+        height: 40px;
+        border-radius: 6px;
+        border: 1.3px solid #ccc;
+        padding: 5px;
+        font-size: 14px;
+      }
+      .login-section1 button {
+        width: 100%;
+        height: 45px;
+        border-radius: 8px;
+        border: none;
+        background-color: #365ee2;
+        color: white;
+        font-size: 16px;
+        margin-top: 32px;
+        cursor: pointer;
+        display: flex;
+        text-align: center;
+        justify-content: center;
+        align-items: center;
+      }
+
+      .Signup-section form {
+        display: flex;
+        flex-direction: column;
+        width: 90%;
+        margin-left: 12px;
+      }
+      .Signup-section label {
+        margin-bottom: 12px;
+        font-size: 14px;
+      }
+      .Signup-section input {
+        margin-bottom: 20px;
+        height: 40px;
+        border-radius: 6px;
+        border: 1.3px solid #ccc;
+        padding: 5px;
+        font-size: 14px;
+      }
+
+      .Signup-section button {
+        width: 100%;
+        height: 45px;
+        border-radius: 8px;
+        border: none;
+        background-color: #365ee2;
+        color: white;
+        font-size: 16px;
+        cursor: pointer;
+        display: flex;
+        text-align: center;
+        justify-content: center;
+        align-items: center;
+      }
+
+      #invalid,
+      #sucess,
+      #access {
+        position: fixed;
+        bottom: -120px; /* start hidden */
+        left: 50%;
+        transform: translateX(-50%);
+        padding: 15px 25px;
+        border-radius: 8px;
+        color: white;
+        font-size: 16px;
+        box-shadow: 0 4px 14px rgba(0, 0, 0, 0.2);
+        transition: bottom 0.4s ease;
+        z-index: 999;
+      }
+
+      #invalid,
+      #sucess,
+      #access {
+        display: none;
+        padding: 10px;
+        margin: 10px 0;
+        border-radius: 5px;
+        text-align: center;
+      }
+
+      #invalid {
+        background-color: #ffebee;
+        color: #c62828;
+        border: 1px solid #ffcdd2;
+      }
+
+      #sucess {
+        background-color: #e8f5e8;
+        color: #2e7d32;
+        border: 1px solid #c8e6c9;
+      }
+
+      #access {
+        background-color: #e3f2fd;
+        color: #1565c0;
+        border: 1px solid #bbdefb;
+      }
+
+      /* visible version */
+      .show {
+        bottom: 30px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="login-scetion">
+      <h1>TaskFlow</h1>
+      <p>Manage your taskd and collaborate with teams</p>
+
+      <div class="LS">
+        <div class="ls-1"><p>Sign In</p></div>
+        <div class="ls-2"><p>Sign Up</p></div>
+      </div>
+
+      <div class="login-section1">
+        <form action="">
+          <label for="email">Email:</label>
+          <input type="email" id="email" name="email" required />
+
+          <label for="password">Password:</label>
+          <input type="password" id="password" name="password" required />
+
+          <button id="login">Login</button>
+        </form>
+      </div>
+
+      <div class="Signup-section" style="display: none">
+        <form action="">
+          <label for="fullname">Fullname</label>
+          <input type="text" id="fullname" name="fullname" required />
+
+          <label for="email">Email</label>
+          <input type="email" id="email1" name="email" required />
+
+          <label for="password">Password</label>
+          <input type="password" id="password1" name="password" required />
+
+          <button id="signup">
+            <span>Sign Up</span
+            ><i class="fa-solid fa-arrow-right-to-bracket"></i>
+          </button>
+        </form>
+      </div>
+
+      <div id="invalid"><p>Invalid credentails</p></div>
+      <div id="sucess"><p>Acccount created succesfully</p></div>
+      <div id="access"><p>Access granted</p></div>
+    </div>
+
+    <script>
+      // Wait for DOM to load completely
+      document.addEventListener("DOMContentLoaded", function () {
+        // Get elements with null checks
+        const loginScreen = document.querySelector(".login-section1");
+        const signupScreen = document.querySelector(".Signup-section");
+        const side1 = document.querySelector(".ls-1");
+        const side2 = document.querySelector(".ls-2");
+        const main = document.querySelector(".login-scetion");
+        const login = document.getElementById("login");
+        const signup = document.getElementById("signup");
+        const invalidToast = document.getElementById("invalid");
+        const sucessToast = document.getElementById("sucess");
+        const accessToast = document.getElementById("access");
+
+        // Toggle between login and signup
+        side1.addEventListener("click", () => {
+          if (loginScreen) loginScreen.style.display = "block";
+          if (signupScreen) signupScreen.style.display = "none";
+          if (side1) side1.style.backgroundColor = "rgb(216, 224, 231)";
+          if (side2) side2.style.backgroundColor = "white";
+          if (side2) side2.style.borderLeft = "none";
+        });
+
+        side2.addEventListener("click", () => {
+          if (signupScreen) signupScreen.style.display = "block";
+          if (loginScreen) loginScreen.style.display = "none";
+          if (side2) side2.style.backgroundColor = "rgb(216, 224, 231)";
+          if (side1) side1.style.backgroundColor = "white";
+          if (side1) side1.style.borderRight = "none";
+          if (side2) side2.style.borderLeft = "1.3px solid #ccc";
+          if (main) main.style.height = "520px";
+        });
+
+        const BASE_URL = "http://localhost:5000/api/auth";
+
+        // Login function
+        login.addEventListener("click", async (e) => {
+          e.preventDefault();
+          console.log("Login button clicked");
+
+          const email = document.getElementById("email");
+          const password = document.getElementById("password");
+
+          if (!email || !password) {
+            console.log("Login form fields not found!");
+            return;
+          }
+
+          const emailValue = email.value;
+          const passwordValue = password.value;
+
+          console.log("Login data:", {
+            email: emailValue,
+            password: passwordValue,
+          });
+
+          // Basic validation
+          if (!emailValue || !passwordValue) {
+            if (invalidToast) {
+              invalidToast.style.display = "block";
+              invalidToast.innerHTML = "<p>Please fill in all fields</p>";
+              setTimeout(() => {
+                invalidToast.style.display = "none";
+              }, 3000);
+            }
+            return;
+          }
+
+          try {
+            const response = await fetch(`${BASE_URL}/login`, {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                email: emailValue,
+                password: passwordValue,
+              }),
+            });
+
+            const data = await response.json();
+            console.log(response.status);
+
+            console.log("Login response:", data);
+
+            if (data.success) {
+              if (accessToast) {
+                accessToast.style.display = "block";
+                setTimeout(() => {
+                  accessToast.style.display = "none";
+                  window.location.href = "dashboard.html";
+                }, 2000);
+              }
+              localStorage.setItem("token", data.token);
+              localStorage.setItem("user", JSON.stringify(data.user));
+            } else {
+              if (invalidToast) {
+                invalidToast.style.display = "block";
+                invalidToast.innerHTML = `<p>${
+                  data.message || "Login failed"
+                }</p>`;
+                setTimeout(() => {
+                  invalidToast.style.display = "none";
+                }, 3000);
+              }
+            }
+          } catch (error) {
+            console.error("Login error:", error);
+            if (invalidToast) {
+              invalidToast.style.display = "block";
+              invalidToast.innerHTML = `<p>Network error: ${error.message}</p>`;
+              setTimeout(() => {
+                invalidToast.style.display = "none";
+              }, 3000);
+            }
+          }
+        });
+
+        // Signup function
+        signup.addEventListener("click", async (e) => {
+          e.preventDefault();
+          console.log("Signup button clicked");
+
+          const fullname = document.getElementById("fullname");
+          const email = document.getElementById("email1");
+          const password = document.getElementById("password1");
+
+          if (!fullname || !email || !password) {
+            console.log("Signup form fields not found!");
+            return;
+          }
+
+          const fullnameValue = fullname.value;
+          const emailValue = email.value;
+          const passwordValue = password.value;
+
+          console.log("Signup data:", {
+            fullname: fullnameValue,
+            email: emailValue,
+            password: passwordValue,
+          });
+
+          // Basic validation
+          if (!fullnameValue || !emailValue || !passwordValue) {
+            if (invalidToast) {
+              invalidToast.style.display = "block";
+              invalidToast.innerHTML = "<p>Please fill in all fields</p>";
+              setTimeout(() => {
+                invalidToast.style.display = "none";
+              }, 3000);
+            }
+            return;
+          }
+
+          try {
+            const response = await fetch(`${BASE_URL}/register`, {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                fullname: fullnameValue,
+                email: emailValue,
+                password: passwordValue,
+              }),
+            });
+
+            const data = await response.json();
+            console.log(response.status);
+
+            console.log("Signup response:", data);
+
+            if (data.success) {
+              if (sucessToast) {
+                sucessToast.style.display = "block";
+                setTimeout(() => {
+                  sucessToast.style.display = "none";
+                  if (side1) side1.click();
+                }, 3000);
+              }
+            } else {
+              if (invalidToast) {
+                invalidToast.style.display = "block";
+                invalidToast.innerHTML = `<p>${
+                  data.message || "Registration failed"
+                }</p>`;
+                setTimeout(() => {
+                  invalidToast.style.display = "none";
+                }, 3000);
+              }
+            }
+          } catch (error) {
+            console.error("Signup error:", error);
+            if (invalidToast) {
+              invalidToast.style.display = "block";
+              invalidToast.innerHTML = `<p>Network error: ${error.message}</p>`;
+              setTimeout(() => {
+                invalidToast.style.display = "none";
+              }, 3000);
+            }
+          }
+        });
+
+        // Prevent form submission if forms exist
+        const loginForm = document.getElementById("loginForm");
+        const signupForm = document.getElementById("signupForm");
+
+        if (loginForm) {
+          loginForm.addEventListener("submit", (e) => {
+            e.preventDefault();
+          });
+        }
+
+        if (signupForm) {
+          signupForm.addEventListener("submit", (e) => {
+            e.preventDefault();
+          });
+        }
+      });
+    </script>
+  </body>
+</html>
