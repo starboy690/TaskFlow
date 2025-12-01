@@ -2743,86 +2743,80 @@ class GroupManager {
         this.showToast(`Group "${name}" created successfully! Invitation code: ${newGroup.invitationCode}`, "success");
     }
     
-    // UPDATED joinGroupWithCode
-    joinGroupWithCode() {
-        console.log('=== JOIN GROUP DEBUG ===');
-        console.log('Current groups in memory:', this.groups);
-        console.log('Shared storage data:', localStorage.getItem('taskflow_shared_groups'));
-        
-        const codeInput = document.getElementById("invitationCodeInput");
-        if (!codeInput) {
-            console.error("Code input not found");
-            return;
-        }
-        
-        // First, refresh from shared storage to get latest groups
-        this.refreshGroupsFromSharedStorage();
-        
-        const code = codeInput.value.trim().toUpperCase();
-        console.log('Trying to join with code:', code);
-        
-        if (!code) {
-            alert("Please enter an invitation code");
-            return;
-        }
-        
-        if (code.length !== 8) {
-            alert("Invitation code must be 8 characters long");
-            console.log('Invalid length:', code.length);
-            return;
-        }
-        
-        // Find group (case-insensitive)
-        const group = this.groups.find((g) => {
-            if (!g.invitationCode) return false;
-            console.log(`Checking group "${g.name}": ${g.invitationCode} vs ${code}`);
-            return g.invitationCode.toUpperCase() === code;
-        });
-        
-        if (!group) {
-            console.log('No group found with code:', code);
-            console.log('Available codes:', this.groups.map(g => g.invitationCode));
-            alert("Invalid invitation code. Please check the code and try again.");
-            return;
-        }
-        
-        console.log('Found group:', group.name);
-        
-        const currentUser = this.getCurrentUser();
-        console.log('Current user:', currentUser);
-        
-        // Check if already a member (case-insensitive email comparison)
-        const isAlreadyMember = group.members.some(
-            (member) => member.email.toLowerCase() === currentUser.email.toLowerCase()
-        );
-        
-        if (isAlreadyMember) {
-            alert("You are already a member of this group!");
-            return;
-        }
-        
-        // Add user to group
-        group.members.push({
-            id: this.generateId(),
-            name: currentUser.name,
-            email: currentUser.email,
-            role: "member",
-            joined: new Date().toISOString(),
-        });
-        
-        console.log('Group after adding member:', group);
-        
-        // Save to shared storage
-        this.saveGroups();
-        
-        // Force refresh for all tabs
-        this.refreshGroupsFromSharedStorage();
-        
-        this.closeModal(document.getElementById("joinGroupModal"));
-        this.showToast(`Successfully joined "${group.name}"!`, "success");
-        
-        console.log('=== JOIN GROUP COMPLETE ===');
+   joinGroupWithCode() {
+    const codeInput = document.getElementById("invitationCodeInput");
+    if (!codeInput) return;
+
+    const code = codeInput.value.trim().toUpperCase();
+    
+    if (!code) {
+        alert("Please enter an invitation code");
+        return;
     }
+
+    if (code.length !== 8) {
+        alert("Invitation code must be 8 characters long");
+        return;
+    }
+
+    // Load groups from shared storage
+    const sharedData = localStorage.getItem('taskflow_shared_groups');
+    if (!sharedData) {
+        alert("No groups exist yet");
+        return;
+    }
+
+    const allGroups = JSON.parse(sharedData);
+    
+    // Find the group
+    const group = allGroups.find(g => 
+        g.invitationCode && g.invitationCode.toUpperCase() === code
+    );
+
+    if (!group) {
+        alert("Invalid invitation code");
+        return;
+    }
+
+    const currentUser = this.getCurrentUser();
+    
+    // Check if already a member
+    const isMember = group.members.some(m => 
+        m.email.toLowerCase() === currentUser.email.toLowerCase()
+    );
+    
+    if (isMember) {
+        alert("You're already a member of this group");
+        return;
+    }
+
+    // Add user
+    group.members.push({
+        id: this.generateId(),
+        name: currentUser.name,
+        email: currentUser.email,
+        role: "member",
+        joined: new Date().toISOString(),
+    });
+
+    // Update the groups array
+    const updatedGroups = allGroups.map(g => 
+        g.id === group.id ? group : g
+    );
+
+    // Save to shared storage
+    localStorage.setItem('taskflow_shared_groups', JSON.stringify(updatedGroups));
+    
+    // Update memory
+    this.groups = updatedGroups;
+    
+    // Close modal and show success
+    this.closeModal(document.getElementById("joinGroupModal"));
+    this.showToast(`Joined "${group.name}" successfully!`, "success");
+    
+    // Refresh UI
+    this.renderGroups();
+}
         openGroupManagement(group) {
           this.currentGroup = group;
           const currentUser = this.getCurrentUser();
