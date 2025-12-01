@@ -2974,105 +2974,62 @@
           }
         }
 
-        leaveGroup() {
-          if (!this.currentGroup) {
+       leaveGroup() {
+        if (!this.currentGroup) {
             this.showToast("No group selected", "error");
             return;
-          }
+        }
 
-          const currentUser = this.getCurrentUser();
-          const groupIndex = this.groups.findIndex(
-            (g) => g.id === this.currentGroup.id
-          );
-          if (groupIndex === -1) {
+        const currentUser = this.getCurrentUser();
+        const groupIndex = this.groups.findIndex((g) => g.id === this.currentGroup.id);
+        if (groupIndex === -1) {
             this.showToast("Group not found", "error");
             return;
-          }
+        }
 
-          const initialLength = this.currentGroup.members.length;
-          this.currentGroup.members = this.currentGroup.members.filter(
-            (m) => m.email !== currentUser.email
-          );
+        const initialLength = this.currentGroup.members.length;
+        this.currentGroup.members = this.currentGroup.members.filter((m) => m.email !== currentUser.email);
 
-          if (initialLength === this.currentGroup.members.length) {
+        if (initialLength === this.currentGroup.members.length) {
             this.showToast("You are not a member of this group", "error");
             return;
-          }
-
-          // REMOVE USER'S TASKS FROM THIS GROUP
-          this.removeUserTasksFromGroup(currentUser.id, this.currentGroup.id);
-
-          this.groups[groupIndex] = this.currentGroup;
-          this.saveGroups();
-          this.saveTasks(); // Save after removing tasks
-          this.renderGroups();
-          this.renderTasks(); // Re-render tasks after removal
-          this.closeModal(document.getElementById("groupManagementModal"));
-          this.showToast(`You left "${this.currentGroup.name}"`, "info");
         }
 
-        // NEW: Remove user's tasks when they leave a group
-        removeUserTasksFromGroup(userId, groupId) {
-          const initialTaskCount = this.tasks.length;
+        this.groups[groupIndex] = this.currentGroup;
+        this.saveGroups();
+        this.renderGroups();
+        this.closeModal(document.getElementById("groupManagementModal"));
+        this.showToast(`You left "${this.currentGroup.name}"`, "info");
+    }
 
-          // Remove tasks where user is assigned AND task belongs to this group
-          this.tasks = this.tasks.filter((task) => {
-            if (task.groupId !== groupId) return true;
+    confirmDeleteGroup() {
+        this.showConfirmation(
+            "Delete Group",
+            `Are you sure you want to delete "${this.currentGroup.name}"? This action cannot be undone. All group data will be lost.`,
+            () => this.deleteCurrentGroup()
+        );
+    }
 
-            if (
-              !task.assignedTo ||
-              task.assignedTo === "Unassigned" ||
-              task.assignedTo === null
-            )
-              return true;
+    deleteCurrentGroup() {
+        this.groups = this.groups.filter((g) => g.id !== this.currentGroup.id);
+        this.saveGroups();
+        this.renderGroups();
+        this.closeModal(document.getElementById("groupManagementModal"));
+        this.showToast(`Group "${this.currentGroup.name}" deleted successfully`, "success");
+        this.currentGroup = null;
+    }
 
-            if (task.assignedTo !== userId) return true;
-
-            if (task.createdBy === userId && task.assignedTo !== userId)
-              return true;
-
-            return false;
-          });
-
-          const removedCount = initialTaskCount - this.tasks.length;
-          if (removedCount > 0) {
-            console.log(
-              `Removed ${removedCount} tasks for user ${userId} from group ${groupId}`
-            );
-          }
+    // TASK MANAGEMENT METHODS (UPDATED WITH AUTO-ADJUSTING LAYOUT)
+    openCreateTaskModal() {
+        if (!this.currentGroup) {
+            this.showToast("Please select a group first", "error");
+            return;
         }
 
-       // Basic deleteGroup function
-deleteCurrentGroup() {
-    if (!this.currentGroup) return;
-    
-    const groupId = this.currentGroup.id;
-    const groupName = this.currentGroup.name;
-    
-    if (!confirm(`Delete group "${groupName}"? This cannot be undone.`)) return;
-    
-    // Delete group
-    this.groups = this.groups.filter(g => g.id !== groupId);
-    
-    // Delete all tasks in this group
-    this.tasks = this.tasks.filter(task => task.groupId !== groupId);
-    
-    // Save changes
-    this.saveGroups();
-    this.saveTasks();
-    
-    // Update UI
-    this.renderGroups();
-    this.renderTasks();
-    
-    // Close modal
-    this.closeModal(document.getElementById("groupManagementModal"));
-    
-    // Show message
-    this.showToast(`Group "${groupName}" deleted`, "success");
-    
-    this.currentGroup = null;
-}
+        this.editingTaskId = null;
+        this.showTaskModal("Create New Task", this.currentGroup.name);
+    }
+
 
         // TASK MANAGEMENT METHODS
         openCreateTaskModal() {
