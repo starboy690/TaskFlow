@@ -2645,55 +2645,111 @@
           this.openModal(modal);
         }
 
-        joinGroupWithCode() {
-          const codeInput = document.getElementById("invitationCodeInput");
-          if (!codeInput) return;
+     joinGroupWithCode() {
+    console.log("=== DEBUG: joinGroupWithCode ===");
+    
+    const codeInput = document.getElementById("invitationCodeInput");
+    if (!codeInput) {
+        console.error("Code input not found");
+        return;
+    }
 
-          const code = codeInput.value.trim().toUpperCase();
+    // Clean the code - remove spaces, ensure uppercase
+    const rawCode = codeInput.value;
+    const code = rawCode.trim().replace(/\s+/g, '').toUpperCase();
+    
+    console.log("Entered code:", code, "(raw:", rawCode, ")");
+    console.log("Code length:", code.length);
 
-          if (!code) {
-            alert("Please enter an invitation code");
-            return;
-          }
+    if (!code) {
+        alert("Please enter an invitation code");
+        return;
+    }
 
-          if (code.length !== 8) {
-            alert("Invitation code must be 8 characters long");
-            return;
-          }
+    if (code.length !== 8) {
+        alert(`Invitation code must be 8 characters long. You entered ${code.length} characters.`);
+        console.log("Invalid length. Expected 8, got:", code.length);
+        return;
+    }
 
-          const group = this.groups.find((g) => g.invitationCode === code);
+    // DEBUG: Log all groups and their codes
+    console.log("All groups and their invitation codes:");
+    this.groups.forEach((group, index) => {
+        console.log(`${index + 1}. Group: "${group.name}"`);
+        console.log(`   Code: "${group.invitationCode}"`);
+        console.log(`   Code type: ${typeof group.invitationCode}`);
+        console.log(`   Code length: ${group.invitationCode ? group.invitationCode.length : 'N/A'}`);
+        console.log(`   Members: ${group.members.length}`);
+    });
 
-          if (!group) {
-            alert(
-              "Invalid invitation code. Please check the code and try again."
-            );
-            return;
-          }
-
-          const currentUser = this.getCurrentUser();
-          const isAlreadyMember = group.members.some(
-            (member) => member.email === currentUser.email
-          );
-
-          if (isAlreadyMember) {
-            alert("You are already a member of this group!");
-            return;
-          }
-
-          // Add user to group as a regular member
-          group.members.push({
-            id: this.generateId(),
-            name: currentUser.name,
-            email: currentUser.email,
-            role: "member",
-            joined: new Date().toISOString(),
-          });
-
-          this.saveGroups();
-          this.renderGroups();
-          this.closeModal(document.getElementById("joinGroupModal"));
-          this.showToast(`Successfully joined "${group.name}"!`, "success");
+    // Case-insensitive comparison
+    const group = this.groups.find((g) => {
+        if (!g.invitationCode) {
+            console.log(`Group "${g.name}" has no invitation code!`);
+            return false;
         }
+        
+        const groupCode = g.invitationCode.toString().toUpperCase().trim();
+        console.log(`Comparing: "${groupCode}" === "${code}" ? ${groupCode === code}`);
+        return groupCode === code;
+    });
+
+    if (!group) {
+        console.log("No group found with code:", code);
+        alert(`Invalid invitation code "${code}". Please check the code and try again.`);
+        
+        // Show available codes (for debugging)
+        const availableCodes = this.groups.map(g => g.invitationCode).filter(Boolean);
+        console.log("Available invitation codes:", availableCodes);
+        return;
+    }
+
+    console.log("Found group:", group.name);
+
+    const currentUser = this.getCurrentUser();
+    console.log("Current user:", currentUser);
+
+    // Check if user is already a member
+    const isAlreadyMember = group.members.some(
+        (member) => member.email.toLowerCase() === currentUser.email.toLowerCase()
+    );
+
+    console.log("Is already member?", isAlreadyMember);
+
+    if (isAlreadyMember) {
+        alert(`You are already a member of "${group.name}"!`);
+        return;
+    }
+
+    // Add user to group
+    const newMember = {
+        id: this.generateId(),
+        name: currentUser.name,
+        email: currentUser.email,
+        role: "member",
+        joined: new Date().toISOString(),
+    };
+    
+    console.log("Adding new member:", newMember);
+    
+    group.members.push(newMember);
+    
+    // Save changes
+    this.saveGroups();
+    
+    // Verify save
+    console.log("Groups after save:", this.groups);
+    
+    // Close modal
+    this.closeModal(document.getElementById("joinGroupModal"));
+    
+    // Update UI
+    this.renderGroups();
+    
+    this.showToast(`Successfully joined "${group.name}"!`, "success");
+    
+    console.log("=== DEBUG: joinGroupWithCode COMPLETE ===");
+}
 
         openGroupManagement(group) {
           this.currentGroup = group;
