@@ -263,72 +263,471 @@
       }
 
       /* Task Section */
+      /* Main Task Section */
       .task-section {
-        padding: 40px;
+        padding: 20px;
+        width: 100%;
+        max-width: 1400px;
+        margin: 0 auto;
       }
 
       .task-section h1 {
-        font-size: 2rem;
-        margin-bottom: 10px;
         color: #2c3e50;
+        margin-bottom: 8px;
+        font-size: 28px;
       }
 
       .task-section > p {
-        font-size: 1rem;
-        color: #555;
-        margin-bottom: 20px;
+        color: #7f8c8d;
+        margin-bottom: 30px;
+        font-size: 16px;
       }
 
-      .task-section .cards {
+      /* Cards Container */
+      .cards {
         display: flex;
-        justify-content: space-evenly;
-        margin-top: 63px;
-        flex-wrap: wrap;
-        gap: 20px;
+        gap: 25px;
+        min-height: 600px;
+        justify-content: space-between;
       }
 
+      /* Individual Task Display Column */
       .tasks-display {
-        border: 0.6px solid #ccc;
-        padding: 20px;
-        border-radius: 10px;
-        width: 400px;
-        height: 185px;
+        border: 1px solid #e1e8ed;
+        padding: 25px;
+        border-radius: 16px;
+        width: 32%; /* Three equal columns */
         background: white;
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-        transition: transform 0.3s ease;
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+        transition: all 0.3s ease;
+        display: flex;
+        flex-direction: column;
+        min-height: 585px;
+        height: auto;
+        overflow: visible;
+        position: relative;
       }
 
       .tasks-display:hover {
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
         transform: translateY(-5px);
       }
 
+      /* Column Headers */
       .tasks-display h5 {
         font-size: 18px;
-        margin-bottom: 10px;
-        display: flex;
-        align-items: center;
-        font-weight: 400;
-        gap: 10px;
+        font-weight: 600;
         color: #2c3e50;
-      }
-
-      .tasks-display p:not(.empty) {
-        font-size: 16px;
-        color: #7f8c8d;
+        margin: 0 0 25px 0;
+        padding-bottom: 15px;
+        border-bottom: 2px solid #f0f2f5;
         display: flex;
         align-items: center;
-        gap: 3px;
-        font-weight: 300;
+        gap: 10px;
       }
 
-      .tasks-display .empty {
-        margin-top: 30px;
-        font-size: 0.9rem;
-        color: #bdc3c7;
+      .tasks-display h5 span {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        background: #f8f9fa;
+      }
+
+      .tasks-display h5 .task-count {
+        background: #e9ecef;
+        color: #6c757d;
+        font-size: 14px;
+        padding: 2px 10px;
+        border-radius: 12px;
+        margin-left: auto;
+      }
+
+      /* Tasks Container - Auto-adjusting layout */
+      .tasks-container {
+        flex: 1;
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 18px;
+        min-height: 450px;
+        padding: 5px;
+        padding-right: 8px;
+        overflow-y: auto;
+        transition: all 0.3s ease;
+      }
+
+      /* Scrollbar for tasks container */
+      .tasks-container::-webkit-scrollbar {
+        width: 6px;
+      }
+
+      .tasks-container::-webkit-scrollbar-track {
+        background: #f8f9fa;
+        border-radius: 10px;
+      }
+
+      .tasks-container::-webkit-scrollbar-thumb {
+        background: #d1d9e0;
+        border-radius: 10px;
+      }
+
+      .tasks-container::-webkit-scrollbar-thumb:hover {
+        background: #a8b5c1;
+      }
+
+      /* Auto-adjusting layouts based on task count */
+      .tasks-container:has(.task-item:nth-child(2)) {
+        grid-template-columns: repeat(auto-fill, minmax(100%, 1fr));
+      }
+
+      .tasks-container:has(.task-item:nth-child(3)) {
+        grid-template-columns: repeat(auto-fill, minmax(48%, 1fr));
+      }
+
+      .tasks-container:has(.task-item:nth-child(5)) {
+        grid-template-columns: repeat(auto-fill, minmax(45%, 1fr));
+        gap: 15px;
+      }
+
+      .tasks-container:has(.task-item:nth-child(7)) {
+        grid-template-columns: repeat(auto-fill, minmax(100%, 1fr));
+        gap: 12px;
+      }
+
+      /* Empty State */
+      .tasks-container .empty {
+        display: flex;
+        align-items: center;
+        justify-content: center;
         text-align: center;
+        color: #95a5a6;
         font-style: italic;
+        padding: 60px 20px;
+        min-height: 400px;
+        grid-column: 1 / -1;
+        font-size: 15px;
+        background: #fafbfc;
+        border-radius: 12px;
+        border: 2px dashed #e1e8ed;
       }
 
+      /* Individual Task Item */
+      .task-item {
+        background: white;
+        border-radius: 14px;
+        padding: 20px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+        transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        cursor: pointer;
+        border-left: 5px solid;
+        display: flex;
+        flex-direction: column;
+        min-height: 140px;
+        position: relative;
+        overflow: hidden;
+        border: 1px solid #f0f2f5;
+      }
+
+      .task-item:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        border-color: #e1e8ed;
+      }
+
+      /* Priority border colors */
+      .task-item.priority-low {
+        border-left-color: #28a745;
+      }
+      .task-item.priority-medium {
+        border-left-color: #ffc107;
+      }
+      .task-item.priority-high {
+        border-left-color: #dc3545;
+      }
+
+      /* Task Header */
+      .task-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 12px;
+      }
+
+      .task-title {
+        font-size: 16px;
+        font-weight: 600;
+        color: #2c3e50;
+        margin: 0;
+        flex: 1;
+        line-height: 1.4;
+        word-break: break-word;
+      }
+
+      .task-actions {
+        display: flex;
+        gap: 8px;
+        opacity: 0;
+        transition: opacity 0.2s;
+      }
+
+      .task-item:hover .task-actions {
+        opacity: 1;
+      }
+
+      .btn-task-edit,
+      .btn-task-delete {
+        background: none;
+        border: none;
+        color: #6c757d;
+        cursor: pointer;
+        font-size: 15px;
+        padding: 6px;
+        border-radius: 6px;
+        transition: all 0.2s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 32px;
+        height: 32px;
+      }
+
+      .btn-task-edit:hover {
+        background: #e3f2fd;
+        color: #1976d2;
+      }
+
+      .btn-task-delete:hover {
+        background: #ffebee;
+        color: #d32f2f;
+      }
+
+      /* Task Description */
+      .task-description {
+        color: #5a6c7d;
+        font-size: 14px;
+        margin: 0 0 18px 0;
+        line-height: 1.5;
+        flex-grow: 1;
+        word-break: break-word;
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        line-clamp: 3;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+      }
+
+      /* Task Meta Information */
+      .task-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        font-size: 12px;
+        color: #7f8c8d;
+        margin-bottom: 18px;
+      }
+
+      .task-group,
+      .task-assignee,
+      .task-due {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 10px;
+        background: #f8f9fa;
+        border-radius: 8px;
+        font-weight: 500;
+      }
+
+      .task-due.overdue {
+        background: #fee;
+        color: #dc3545;
+        font-weight: 600;
+      }
+
+      .task-group i,
+      .task-assignee i,
+      .task-due i {
+        font-size: 11px;
+      }
+
+      /* Task Footer */
+      .task-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: auto;
+        padding-top: 16px;
+        border-top: 1px solid #f0f2f5;
+      }
+
+      .task-priority {
+        padding: 5px 12px;
+        border-radius: 20px;
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+
+      .task-priority.low {
+        background: #d4edda;
+        color: #155724;
+      }
+      .task-priority.medium {
+        background: #fff3cd;
+        color: #856404;
+      }
+      .task-priority.high {
+        background: #f8d7da;
+        color: #721c24;
+      }
+
+      .task-status-actions {
+        display: flex;
+        gap: 8px;
+      }
+
+      .btn-status {
+        padding: 7px 14px;
+        border: none;
+        border-radius: 8px;
+        background: #edf2f7;
+        color: #4a5568;
+        font-size: 12px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+        white-space: nowrap;
+      }
+
+      .btn-status:hover {
+        background: #e2e8f0;
+        transform: translateY(-1px);
+      }
+
+      /* To Do column specific */
+      .tasks-display:nth-child(1) .btn-status {
+        background: #e3f2fd;
+        color: #1976d2;
+      }
+
+      /* In Progress column specific */
+      .tasks-display:nth-child(2) .btn-status {
+        background: #fff3cd;
+        color: #856404;
+      }
+
+      /* Completed column specific */
+      .tasks-display:nth-child(3) .btn-status {
+        background: #d4edda;
+        color: #155724;
+      }
+
+      /* Column-specific border accents */
+      .tasks-display:nth-child(1) {
+        /* To Do */
+        border-top: 4px solid rgba(223, 203, 113, 0.848);
+      }
+
+      .tasks-display:nth-child(2) {
+        /* In Progress */
+        border-top: 4px solid rgb(232, 144, 37);
+      }
+
+      .tasks-display:nth-child(3) {
+        /* Completed */
+        border-top: 4px solid greenyellow;
+      }
+
+      /* Responsive Design */
+      @media (max-width: 1200px) {
+        .cards {
+          flex-wrap: wrap;
+        }
+
+        .tasks-display {
+          width: 48%;
+          min-height: 550px;
+        }
+      }
+
+      @media (max-width: 768px) {
+        .cards {
+          flex-direction: column;
+        }
+
+        .tasks-display {
+          width: 100%;
+          min-height: 500px;
+          margin-bottom: 20px;
+        }
+
+        .tasks-container {
+          min-height: 350px;
+        }
+
+        .task-item {
+          padding: 16px;
+        }
+
+        .task-meta {
+          flex-direction: column;
+          gap: 8px;
+        }
+      }
+
+      @media (max-width: 480px) {
+        .task-section {
+          padding: 15px;
+        }
+
+        .tasks-display {
+          padding: 18px;
+        }
+
+        .task-header {
+          flex-direction: column;
+          gap: 10px;
+        }
+
+        .task-actions {
+          opacity: 1;
+          align-self: flex-end;
+        }
+
+        .btn-status {
+          padding: 6px 10px;
+          font-size: 11px;
+        }
+      }
+
+      /* Animation for new tasks */
+      @keyframes slideIn {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .task-item {
+        animation: slideIn 0.4s ease forwards;
+      }
+
+      /* Smooth height transition for columns */
+      .tasks-display {
+        transition: height 0.4s ease, transform 0.3s ease;
+      }
+
+      /* Make column expand when tasks are added */
+      .tasks-display:has(.task-item) {
+        height: auto;
+      }
       /* Group Section */
       .group-section {
         padding: 40px;
@@ -1589,6 +1988,24 @@
         margin: 0;
         font-style: italic;
       }
+
+      .assign-help {
+        display: block;
+        margin-top: 5px;
+        color: #6c757d;
+        font-size: 12px;
+        font-style: italic;
+      }
+
+      .task-assignee.unassigned {
+        background: #f8f9fa;
+        color: #6c757d;
+        border: 1px dashed #dee2e6;
+      }
+
+      .task-assignee.unassigned i {
+        color: #adb5bd;
+      }
     </style>
   </head>
   <body>
@@ -2540,37 +2957,30 @@
             (m) => m.id === memberId
           );
           if (member) {
+            // REMOVE MEMBER'S TASKS BEFORE REMOVING THEM
+            this.removeUserTasksFromGroup(memberId, this.currentGroup.id);
+
             this.currentGroup.members = this.currentGroup.members.filter(
               (m) => m.id !== memberId
             );
             this.saveGroups();
+            this.saveTasks(); // Save after removing tasks
             this.openGroupManagement(this.currentGroup);
-            this.showToast(`Removed ${member.name} from group`, "success");
+            this.renderTasks(); // Re-render tasks
+            this.showToast(
+              `Removed ${member.name} from group and their assigned tasks`,
+              "success"
+            );
           }
         }
 
         leaveGroup() {
-          console.log("=== LEAVE GROUP DEBUG ===");
-          console.log("1. leaveGroup called");
-          console.log("2. this context:", this);
-          console.log("3. currentGroup:", this.currentGroup);
-
           if (!this.currentGroup) {
-            console.log("5. ERROR: currentGroup is null/undefined");
             this.showToast("No group selected", "error");
             return;
           }
 
           const currentUser = this.getCurrentUser();
-          console.log("6. currentUser:", currentUser);
-
-          if (!currentUser) {
-            console.log("7. ERROR: No current user");
-            this.showToast("User not found", "error");
-            return;
-          }
-
-          // Find the actual group in the groups array (not just the reference)
           const groupIndex = this.groups.findIndex(
             (g) => g.id === this.currentGroup.id
           );
@@ -2579,59 +2989,82 @@
             return;
           }
 
-          console.log("8. Before filter - members:", this.currentGroup.members);
-          console.log("9. Looking for user email:", currentUser.email);
-
           const initialLength = this.currentGroup.members.length;
-          this.currentGroup.members = this.currentGroup.members.filter((m) => {
-            const match = m.email !== currentUser.email;
-            console.log(
-              `   Checking ${m.email} vs ${currentUser.email}: ${match}`
-            );
-            return match;
-          });
-
-          console.log("10. After filter - members:", this.currentGroup.members);
-          console.log(
-            "11. Removed members:",
-            initialLength - this.currentGroup.members.length
+          this.currentGroup.members = this.currentGroup.members.filter(
+            (m) => m.email !== currentUser.email
           );
 
           if (initialLength === this.currentGroup.members.length) {
-            console.log("12. WARNING: No members were removed");
             this.showToast("You are not a member of this group", "error");
             return;
           }
 
-          // Update the actual group in the array
-          this.groups[groupIndex] = this.currentGroup;
+          // REMOVE USER'S TASKS FROM THIS GROUP
+          this.removeUserTasksFromGroup(currentUser.id, this.currentGroup.id);
 
+          this.groups[groupIndex] = this.currentGroup;
           this.saveGroups();
+          this.saveTasks(); // Save after removing tasks
           this.renderGroups();
+          this.renderTasks(); // Re-render tasks after removal
           this.closeModal(document.getElementById("groupManagementModal"));
           this.showToast(`You left "${this.currentGroup.name}"`, "info");
-          console.log("=== LEAVE GROUP COMPLETE ===");
         }
 
-        confirmDeleteGroup() {
-          this.showConfirmation(
-            "Delete Group",
-            `Are you sure you want to delete "${this.currentGroup.name}"? This action cannot be undone. All group data will be lost.`,
-            () => this.deleteCurrentGroup()
-          );
+        // NEW: Remove user's tasks when they leave a group
+        removeUserTasksFromGroup(userId, groupId) {
+          const initialTaskCount = this.tasks.length;
+
+          // Remove tasks where user is assigned AND task belongs to this group
+          this.tasks = this.tasks.filter((task) => {
+            if (task.groupId !== groupId) return true;
+
+            if (
+              !task.assignedTo ||
+              task.assignedTo === "Unassigned" ||
+              task.assignedTo === null
+            )
+              return true;
+
+            if (task.assignedTo !== userId) return true;
+
+            if (task.createdBy === userId && task.assignedTo !== userId)
+              return true;
+
+            return false;
+          });
+
+          const removedCount = initialTaskCount - this.tasks.length;
+          if (removedCount > 0) {
+            console.log(
+              `Removed ${removedCount} tasks for user ${userId} from group ${groupId}`
+            );
+          }
         }
 
         deleteCurrentGroup() {
-          this.groups = this.groups.filter(
-            (g) => g.id !== this.currentGroup.id
-          );
+          const groupId = this.currentGroup.id;
+          const groupName = this.currentGroup.name;
+
+          // REMOVE ALL TASKS BELONGING TO THIS GROUP
+          const initialTaskCount = this.tasks.length;
+          this.tasks = this.tasks.filter((task) => task.groupId !== groupId);
+          const removedTasksCount = initialTaskCount - this.tasks.length;
+
+          this.groups = this.groups.filter((g) => g.id !== groupId);
           this.saveGroups();
+          this.saveTasks(); // Save after removing tasks
           this.renderGroups();
+          this.renderTasks(); // Re-render tasks
+
           this.closeModal(document.getElementById("groupManagementModal"));
-          this.showToast(
-            `Group "${this.currentGroup.name}" deleted successfully`,
-            "success"
-          );
+
+          let message = `Group "${groupName}" deleted successfully`;
+          if (removedTasksCount > 0) {
+            message += ` (${removedTasksCount} tasks removed)`;
+          }
+
+          this.showToast(message, "success");
           this.currentGroup = null;
         }
 
@@ -2736,9 +3169,12 @@
           }
 
           const currentUser = this.getCurrentUser();
-          const assignedMember = assignedTo
-            ? this.currentGroup.members.find((m) => m.id === assignedTo)
-            : null;
+          const isUnassigned = !assignedTo || assignedTo.trim() === "";
+
+          // Find assigned member if task is assigned
+          const assignedMember = isUnassigned
+            ? null
+            : this.currentGroup.members.find((m) => m.id === assignedTo);
 
           const newTask = {
             id: this.generateId(),
@@ -2749,12 +3185,17 @@
             dueDate: dueDate || null,
             createdBy: currentUser.id,
             createdByName: currentUser.name,
-            assignedTo: assignedTo || null,
-            assignedToName: assignedMember ? assignedMember.name : "Unassigned",
+            assignedTo: isUnassigned ? null : assignedTo, // Store as null for unassigned
+            assignedToName: isUnassigned
+              ? "Unassigned"
+              : assignedMember
+              ? assignedMember.name
+              : "Unassigned",
             groupId: this.currentGroup.id,
             groupName: this.currentGroup.name,
             createdAt: new Date().toISOString(),
             updatedAt: new Date().toISOString(),
+            isUnassigned: isUnassigned, // Add flag for easy checking
           };
 
           this.tasks.push(newTask);
@@ -2764,6 +3205,248 @@
           this.showToast("Task created successfully!", "success");
         }
 
+        // FIXED: Now properly handles task visibility
+        getTasksByStatus(status) {
+          const currentUser = this.getCurrentUser();
+          const userId = currentUser.id;
+
+          return this.tasks.filter((task) => {
+            // 1. Check status matches
+            if (task.status !== status) return false;
+
+            // 2. Find the group this task belongs to
+            const taskGroup = this.groups.find((g) => g.id === task.groupId);
+            if (!taskGroup) return false;
+
+            // 3. Check if user is a member of this group
+            const userRole = this.getUserRoleInGroup(
+              taskGroup,
+              currentUser.email
+            );
+            const isMember = userRole !== "non-member";
+            const isAdmin = userRole === "admin";
+
+            if (!isMember) return false;
+
+            // 4. Check if task is assigned or unassigned
+            const isUnassigned =
+              !task.assignedTo ||
+              task.assignedTo === "Unassigned" ||
+              task.assignedTo === null;
+            const isAssignedToMe = task.assignedTo === userId;
+            const isCreatedByMe = task.createdBy === userId;
+
+            // VISIBILITY RULES:
+            // 1. Admins can see ALL tasks in their groups
+            if (isAdmin) return true;
+
+            // 2. Unassigned tasks → Visible to ALL group members
+            if (isUnassigned) return true;
+
+            // 3. Assigned tasks → Only visible to assigned user & creator
+            return isAssignedToMe || isCreatedByMe;
+          });
+        }
+
+        // IMPROVED: Better edit functionality (no delete/recreate)
+        editTask(taskId) {
+          const task = this.tasks.find((t) => t.id === taskId);
+          if (!task) return;
+
+          // Set the current group to the task's group
+          this.currentGroup = this.groups.find((g) => g.id === task.groupId);
+          if (!this.currentGroup) {
+            this.showToast("Task group not found", "error");
+            return;
+          }
+
+          // Open edit modal with task data
+          this.editingTaskId = taskId;
+          this.showTaskModal("Edit Task", this.currentGroup.name, task);
+        }
+
+        // NEW: Unified task modal handler
+        showTaskModal(title, groupName, task = null) {
+          const isEditMode = !!task;
+          let modal = document.getElementById("taskModal");
+
+          if (!modal) {
+            modal = document.createElement("div");
+            modal.id = "taskModal";
+            modal.className = "modal";
+            document.body.appendChild(modal);
+          }
+
+          const currentUser = this.getCurrentUser();
+          const groupMembers = this.currentGroup.members;
+
+          modal.innerHTML = `
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>${title} in ${groupName}</h3>
+                <span class="close">&times;</span>
+            </div>
+            <form id="${isEditMode ? "editTaskForm" : "createTaskForm"}">
+                <div class="form-group">
+                    <label for="taskTitle">Task Title *</label>
+                    <input type="text" id="taskTitle" name="title" required maxlength="100" 
+                           placeholder="Enter task title" value="${
+                             task ? task.title : ""
+                           }">
+                </div>
+                
+                <div class="form-group">
+                    <label for="taskDescription">Description</label>
+                    <textarea id="taskDescription" name="description" rows="3" maxlength="500" 
+                              placeholder="Enter task description">${
+                                task ? task.description : ""
+                              }</textarea>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="taskPriority">Priority</label>
+                        <select id="taskPriority" name="priority">
+                            <option value="low" ${
+                              task && task.priority === "low" ? "selected" : ""
+                            }>Low</option>
+                            <option value="medium" ${
+                              !task || task.priority === "medium"
+                                ? "selected"
+                                : ""
+                            }>Medium</option>
+                            <option value="high" ${
+                              task && task.priority === "high" ? "selected" : ""
+                            }>High</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="taskDueDate">Due Date</label>
+                        <input type="date" id="taskDueDate" name="dueDate" 
+                               value="${
+                                 task && task.dueDate
+                                   ? task.dueDate.split("T")[0]
+                                   : ""
+                               }">
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="taskAssignTo">Assign To</label>
+                    <select id="taskAssignTo" name="assignedTo">
+                        <option value="">Unassigned (Visible to all)</option>
+                        ${groupMembers
+                          .map(
+                            (member) => `
+                            <option value="${member.id}" ${
+                              task && task.assignedTo === member.id
+                                ? "selected"
+                                : ""
+                            }>
+                                ${member.name} ${
+                              member.role === "admin" ? "👑" : ""
+                            }
+                            </option>
+                        `
+                          )
+                          .join("")}
+                    </select>
+                    <small class="assign-help">Unassigned tasks are visible to all group members. Assigned tasks are private.</small>
+                </div>
+                
+                ${
+                  isEditMode
+                    ? `
+                <div class="form-group">
+                    <label for="taskStatus">Status</label>
+                    <select id="taskStatus" name="status">
+                        <option value="pending" ${
+                          task.status === "pending" ? "selected" : ""
+                        }>To Do</option>
+                        <option value="in-progress" ${
+                          task.status === "in-progress" ? "selected" : ""
+                        }>In Progress</option>
+                        <option value="completed" ${
+                          task.status === "completed" ? "selected" : ""
+                        }>Completed</option>
+                    </select>
+                </div>
+                `
+                    : ""
+                }
+                
+                <div class="modal-actions">
+                    <button type="button" class="btn-cancel">Cancel</button>
+                    <button type="submit" class="btn-create">${
+                      isEditMode ? "Update Task" : "Create Task"
+                    }</button>
+                </div>
+            </form>
+        </div>
+    `;
+
+          this.openModal(modal);
+
+          // Set minimum date to today
+          const dueDateInput = document.getElementById("taskDueDate");
+          if (dueDateInput) {
+            const today = new Date().toISOString().split("T")[0];
+            dueDateInput.min = today;
+          }
+        }
+
+        handleEditTask(e) {
+          e.preventDefault();
+          const formData = new FormData(e.target);
+
+          const title = formData.get("title");
+          const description = formData.get("description");
+          const priority = formData.get("priority");
+          const dueDate = formData.get("dueDate");
+          const assignedTo = formData.get("assignedTo");
+          const status = formData.get("status");
+
+          if (!title.trim()) {
+            this.showToast("Task title is required", "error");
+            return;
+          }
+
+          const taskIndex = this.tasks.findIndex(
+            (t) => t.id === this.editingTaskId
+          );
+          if (taskIndex === -1) {
+            this.showToast("Task not found", "error");
+            return;
+          }
+
+          const currentUser = this.getCurrentUser();
+          const isUnassigned = !assignedTo || assignedTo.trim() === "";
+
+          // Validate assigned user is still in group
+          if (!isUnassigned) {
+            const assignedMember = this.currentGroup.members.find(
+              (m) => m.id === assignedTo
+            );
+            if (!assignedMember) {
+              this.showToast(
+                "Selected user is no longer in this group",
+                "error"
+              );
+
+              // Auto-convert to unassigned
+              this.tasks[taskIndex].assignedTo = null;
+              this.tasks[taskIndex].assignedToName = "Unassigned";
+              this.tasks[taskIndex].isUnassigned = true;
+              this.saveTasks();
+              this.renderTasks();
+              this.showToast("Task converted to unassigned", "info");
+              return;
+            }
+          }
+        }
+
+        // FIXED: Update status method
         updateTaskStatus(taskId, newStatus) {
           const task = this.tasks.find((t) => t.id === taskId);
           if (task) {
@@ -2775,7 +3458,34 @@
           }
         }
 
+        // FIXED: Delete task with permission check
         deleteTask(taskId) {
+          const task = this.tasks.find((t) => t.id === taskId);
+          if (!task) return;
+
+          // Check permissions
+          const currentUser = this.getCurrentUser();
+          const isCreator = task.createdBy === currentUser.id;
+
+          // Find task's group
+          const taskGroup = this.groups.find((g) => g.id === task.groupId);
+          if (!taskGroup) return;
+
+          const userRole = this.getUserRoleInGroup(
+            taskGroup,
+            currentUser.email
+          );
+          const isAdmin = userRole === "admin";
+
+          // Only creator or admin can delete
+          if (!isCreator && !isAdmin) {
+            this.showToast(
+              "You don't have permission to delete this task",
+              "error"
+            );
+            return;
+          }
+
           if (confirm("Are you sure you want to delete this task?")) {
             this.tasks = this.tasks.filter((t) => t.id !== taskId);
             this.saveTasks();
@@ -2784,33 +3494,34 @@
           }
         }
 
-        editTask(taskId) {
-          const task = this.tasks.find((t) => t.id === taskId);
-          if (!task) return;
-
-          // For simplicity, we'll just delete and recreate for editing
-          if (confirm("Edit this task? It will be recreated with changes.")) {
-            this.deleteTask(taskId);
-            this.currentGroup = this.groups.find((g) => g.id === task.groupId);
-            if (this.currentGroup) {
-              setTimeout(() => this.openCreateTaskModal(), 300);
-            }
-          }
-        }
-
         getTasksByStatus(status) {
           const currentUser = this.getCurrentUser();
-          return this.tasks.filter((task) => {
-            const isUserTask =
-              task.assignedTo === currentUser.id ||
-              task.createdBy === currentUser.id;
-            const isInUserGroups = this.groups.some(
-              (group) =>
-                group.id === task.groupId &&
-                group.members.some((member) => member.id === currentUser.id)
-            );
+          const userId = currentUser.id;
 
-            return task.status === status && (isUserTask || isInUserGroups);
+          return this.tasks.filter((task) => {
+            // Basic filters
+            if (task.status !== status) return false;
+
+            const taskGroup = this.groups.find((g) => g.id === task.groupId);
+            if (!taskGroup) return false;
+
+            // Check group membership
+            const userRole = this.getUserRoleInGroup(
+              taskGroup,
+              currentUser.email
+            );
+            if (userRole === "non-member") return false;
+
+            const isAdmin = userRole === "admin";
+            const isAssigned = task.assignedTo && task.assignedTo.trim() !== "";
+            const isAssignedToMe = task.assignedTo === userId;
+            const isCreatedByMe = task.createdBy === userId;
+
+            if (isAdmin) return true;
+
+            if (!isAssigned) return true;
+
+            return isAssignedToMe || isCreatedByMe;
           });
         }
 
@@ -3334,31 +4045,77 @@
 
           this.openModal(modal);
         }
-
-        showToast(message, type = "info") {
+        // Enhanced showToast to handle task removal notifications
+        showToast(message, type = "info", details = null) {
           const toast = document.createElement("div");
           toast.className = `toast toast-${type}`;
-          toast.textContent = message;
+
+          let toastContent = message;
+          if (details) {
+            toastContent += `<br><small>${details}</small>`;
+          }
+
+          toast.innerHTML = toastContent;
+
           toast.style.cssText = `
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            padding: 12px 20px;
-            background: ${
-              type === "success"
-                ? "#28a745"
-                : type === "error"
-                ? "#dc3545"
-                : "#17a2b8"
-            };
-            color: white;
-            border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-            z-index: 10000;
-            animation: slideInRight 0.3s ease;
-        `;
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        padding: 12px 20px;
+        background: ${
+          type === "success"
+            ? "#28a745"
+            : type === "error"
+            ? "#dc3545"
+            : type === "warning"
+            ? "#ffc107"
+            : "#17a2b8"
+        };
+        color: white;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        z-index: 10000;
+        animation: slideInRight 0.3s ease;
+        max-width: 300px;
+    `;
+
           document.body.appendChild(toast);
           setTimeout(() => toast.remove(), 3000);
+        }
+
+        // Update removeUserTasksFromGroup to show notification
+        removeUserTasksFromGroup(userId, groupId) {
+          const initialTaskCount = this.tasks.length;
+          let removedPersonalTasks = 0;
+
+          this.tasks = this.tasks.filter((task) => {
+            if (task.groupId !== groupId) return true;
+
+            if (
+              !task.assignedTo ||
+              task.assignedTo === "Unassigned" ||
+              task.assignedTo === null
+            )
+              return true;
+
+            if (task.assignedTo !== userId) return true;
+
+            if (task.createdBy === userId && task.assignedTo !== userId)
+              return true;
+
+            removedPersonalTasks++;
+            return false;
+          });
+
+          if (removedPersonalTasks > 0) {
+            this.showToast(
+              `Tasks removed`,
+              "info",
+              `${removedPersonalTasks} assigned tasks were removed`
+            );
+          }
+
+          return removedPersonalTasks;
         }
       }
 
