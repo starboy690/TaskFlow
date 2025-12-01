@@ -6,8 +6,10 @@ require("dotenv").config();
 
 const app = express();
 
+const allowedOrigins = [""];
+
 // Middleware
-app.use(cors({ origin: "http://127.0.0.1:5500" }));
+app.use(cors({ origin: "https://task-flow-gush.vercel.app" }));
 app.use(express.json());
 
 // In your server.js, make sure you have:
