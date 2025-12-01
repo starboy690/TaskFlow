@@ -16,37 +16,45 @@
         box-sizing: border-box;
         font-family: Arial, Helvetica, sans-serif;
       }
+      /* Base styles - only making responsive */
       .login-scetion {
-        width: 600px;
+        width: 90%;
+        max-width: 600px;
         margin: 50px auto;
-        height: 500px;
+        min-height: 500px;
         padding: 20px;
         border: 1px solid #ccc;
         border-radius: 10px;
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        box-sizing: border-box;
       }
 
       .login-scetion h1 {
         text-align: left;
         margin-bottom: 10px;
+        font-size: 24px;
       }
+
       .login-scetion p {
         text-align: left;
         margin-bottom: 30px;
         color: #555;
+        font-size: 16px;
       }
 
       .login-scetion .LS {
         display: flex;
         flex-direction: row;
         margin-bottom: 30px;
-        width: 90%;
+        width: 100%;
+        max-width: 90%;
         height: 40px;
         border: 1.3px solid #ccc;
         border-radius: 8px;
         justify-content: space-between;
         margin-left: 12px;
         padding: 2px;
+        box-sizing: border-box;
       }
 
       .LS .ls-1 {
@@ -59,12 +67,14 @@
         height: 30px;
         border-radius: 6px;
         margin-top: 3px;
+        display: flex;
       }
 
       .LS .ls-1 p {
         font-size: 16px;
         text-align: center;
         padding-top: 3.5px;
+        margin: 0;
       }
 
       .LS .ls-2 {
@@ -75,23 +85,30 @@
         height: 30px;
         border-radius: 6px;
         margin-top: 3px;
+        display: flex;
       }
 
       .LS .ls-2 p {
         font-size: 16px;
         text-align: center;
         padding-top: 2px;
+        margin: 0;
       }
+
       .login-section1 form {
         display: flex;
         flex-direction: column;
-        width: 90%;
+        width: 100%;
+        max-width: 90%;
         margin-left: 12px;
+        box-sizing: border-box;
       }
+
       .login-section1 label {
         margin-bottom: 12px;
         font-size: 14px;
       }
+
       .login-section1 input {
         margin-bottom: 20px;
         height: 40px;
@@ -99,7 +116,10 @@
         border: 1.3px solid #ccc;
         padding: 5px;
         font-size: 14px;
+        width: 100%;
+        box-sizing: border-box;
       }
+
       .login-section1 button {
         width: 100%;
         height: 45px;
@@ -114,18 +134,23 @@
         text-align: center;
         justify-content: center;
         align-items: center;
+        box-sizing: border-box;
       }
 
       .Signup-section form {
         display: flex;
         flex-direction: column;
-        width: 90%;
+        width: 100%;
+        max-width: 90%;
         margin-left: 12px;
+        box-sizing: border-box;
       }
+
       .Signup-section label {
         margin-bottom: 12px;
         font-size: 14px;
       }
+
       .Signup-section input {
         margin-bottom: 20px;
         height: 40px;
@@ -133,6 +158,8 @@
         border: 1.3px solid #ccc;
         padding: 5px;
         font-size: 14px;
+        width: 100%;
+        box-sizing: border-box;
       }
 
       .Signup-section button {
@@ -148,13 +175,14 @@
         text-align: center;
         justify-content: center;
         align-items: center;
+        box-sizing: border-box;
       }
 
       #invalid,
       #sucess,
       #access {
         position: fixed;
-        bottom: -120px; /* start hidden */
+        bottom: -120px;
         left: 50%;
         transform: translateX(-50%);
         padding: 15px 25px;
@@ -164,16 +192,11 @@
         box-shadow: 0 4px 14px rgba(0, 0, 0, 0.2);
         transition: bottom 0.4s ease;
         z-index: 999;
-      }
-
-      #invalid,
-      #sucess,
-      #access {
-        display: none;
-        padding: 10px;
-        margin: 10px 0;
-        border-radius: 5px;
+        max-width: 90%;
+        width: auto;
         text-align: center;
+        box-sizing: border-box;
+        display: none;
       }
 
       #invalid {
@@ -194,9 +217,133 @@
         border: 1px solid #bbdefb;
       }
 
-      /* visible version */
       .show {
         bottom: 30px;
+        display: block;
+      }
+
+      /* Responsive adjustments only */
+
+      /* Tablets and smaller desktops */
+      @media (max-width: 768px) {
+        .login-scetion {
+          width: 95%;
+          margin: 30px auto;
+          padding: 20px 15px;
+          min-height: auto;
+        }
+
+        .login-scetion .LS {
+          max-width: 100%;
+          margin-left: 0;
+        }
+
+        .login-section1 form,
+        .Signup-section form {
+          max-width: 100%;
+          margin-left: 0;
+        }
+      }
+
+      /* Mobile phones */
+      @media (max-width: 480px) {
+        .login-scetion {
+          width: 100%;
+          margin: 20px auto;
+          padding: 15px;
+          border: none;
+          box-shadow: none;
+          border-radius: 0;
+        }
+
+        .login-scetion h1 {
+          font-size: 22px;
+        }
+
+        .login-scetion p {
+          font-size: 15px;
+          margin-bottom: 20px;
+        }
+
+        .login-scetion .LS {
+          height: 38px;
+          margin-bottom: 20px;
+        }
+
+        .LS .ls-1,
+        .LS .ls-2 {
+          height: 28px;
+        }
+
+        .LS .ls-1 p,
+        .LS .ls-2 p {
+          font-size: 15px;
+        }
+
+        .login-section1 input,
+        .Signup-section input {
+          height: 38px;
+          margin-bottom: 15px;
+        }
+
+        .login-section1 button,
+        .Signup-section button {
+          height: 42px;
+          margin-top: 20px;
+        }
+
+        #invalid,
+        #sucess,
+        #access {
+          padding: 12px 20px;
+          font-size: 14px;
+          max-width: 95%;
+        }
+
+        .show {
+          bottom: 20px;
+        }
+      }
+
+      /* Very small mobile phones */
+      @media (max-width: 360px) {
+        .login-scetion {
+          padding: 12px 10px;
+        }
+
+        .login-scetion h1 {
+          font-size: 20px;
+        }
+
+        .login-scetion p {
+          font-size: 14px;
+        }
+
+        .login-scetion .LS {
+          height: 36px;
+        }
+
+        .LS .ls-1,
+        .LS .ls-2 {
+          height: 26px;
+        }
+
+        .LS .ls-1 p,
+        .LS .ls-2 p {
+          font-size: 14px;
+        }
+
+        .login-section1 input,
+        .Signup-section input {
+          height: 36px;
+          font-size: 13px;
+        }
+
+        .login-section1 button,
+        .Signup-section button {
+          height: 40px;
+          font-size: 15px;
+        }
       }
     </style>
   </head>
