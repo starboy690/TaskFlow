@@ -2408,159 +2408,282 @@
           taskIcon.classList.remove("active");
         });
       });
-      // Enhanced Group Management System
-      class GroupManager {
-        constructor() {
-          this.currentGroup = null;
-          this.groups =
-            JSON.parse(localStorage.getItem("taskflow_groups")) || [];
-          this.tasks = JSON.parse(localStorage.getItem("taskflow_tasks")) || [];
-          this.init();
+class SharedStorage {
+    constructor() {
+        this.key = 'taskflow_shared_groups';
+        this.setupSync();
+    }
+    
+    setupSync() {
+        // Listen for storage changes from other tabs
+        window.addEventListener('storage', (e) => {
+            console.log('Storage event received:', e.key, e.newValue);
+            if (e.key === this.key) {
+                console.log('Groups updated from another tab');
+                this.triggerUpdate();
+            }
+        });
+    }
+    
+    triggerUpdate() {
+        // Dispatch custom event that GroupManager can listen to
+        const event = new CustomEvent('sharedGroupsUpdated', {
+            detail: { timestamp: new Date().toISOString() }
+        });
+        window.dispatchEvent(event);
+        console.log('Shared groups update triggered');
+    }
+}
+
+// Enhanced Group Management System
+class GroupManager {
+    constructor() {
+        this.currentGroup = null;
+        this.sharedStorage = new SharedStorage();
+        
+        // Load from shared storage
+        this.groups = this.loadSharedGroups();
+        this.tasks = JSON.parse(localStorage.getItem("taskflow_tasks")) || [];
+        this.init();
+        
+        // Listen for updates from shared storage
+        this.setupSharedListeners();
+    }
+    
+    // Load groups from shared storage
+    loadSharedGroups() {
+        const sharedData = localStorage.getItem('taskflow_shared_groups');
+        console.log('Loading shared groups:', sharedData);
+        
+        if (sharedData) {
+            try {
+                return JSON.parse(sharedData);
+            } catch (error) {
+                console.error('Error parsing shared groups:', error);
+            }
         }
-
-        init() {
-          this.bindEvents();
-          this.renderGroups();
-          this.renderTasks();
-          this.setupTabSwitching();
+        
+        // If no shared data exists, check individual storage
+        const individualData = localStorage.getItem("taskflow_groups");
+        if (individualData) {
+            try {
+                const groups = JSON.parse(individualData);
+                // Migrate to shared storage
+                localStorage.setItem('taskflow_shared_groups', individualData);
+                return groups;
+            } catch (error) {
+                console.error('Error parsing individual groups:', error);
+            }
         }
+        
+        return [];
+    }
+    
+    setupSharedListeners() {
+        // Listen for updates from shared storage
+        window.addEventListener('sharedGroupsUpdated', () => {
+            console.log('Received shared groups update event');
+            this.refreshGroupsFromSharedStorage();
+        });
+    }
+    
+    refreshGroupsFromSharedStorage() {
+        const sharedData = localStorage.getItem('taskflow_shared_groups');
+        console.log('Refreshing groups from shared storage:', sharedData);
+        
+        if (sharedData) {
+            try {
+                const newGroups = JSON.parse(sharedData);
+                this.groups = newGroups;
+                this.renderGroups();
+                console.log('Groups refreshed successfully');
+            } catch (error) {
+                console.error('Error refreshing groups:', error);
+            }
+        }
+    }
+    
+    init() {
+        this.bindEvents();
+        this.renderGroups();
+        this.renderTasks();
+        this.setupTabSwitching();
+    }
+    
+    // UPDATED saveGroups with shared storage
+    saveGroups() {
+        // Save to both individual and shared storage
+        const groupsJSON = JSON.stringify(this.groups);
+        
+        // 1. Save to individual storage
+        localStorage.setItem("taskflow_groups", groupsJSON);
+        
+        // 2. Save to shared storage
+        localStorage.setItem("taskflow_shared_groups", groupsJSON);
+        
+        // 3. Trigger storage event for other tabs
+        try {
+            // This triggers the storage event that other tabs will listen for
+            window.dispatchEvent(new StorageEvent('storage', {
+                key: 'taskflow_shared_groups',
+                newValue: groupsJSON,
+                oldValue: localStorage.getItem('taskflow_shared_groups'),
+                url: window.location.href,
+                storageArea: localStorage
+            }));
+        } catch (error) {
+            // Fallback: use custom event
+            console.log('Using custom event fallback');
+            this.sharedStorage.triggerUpdate();
+        }
+        
+        console.log('Groups saved to shared storage:', this.groups.length, 'groups');
+    }
+    
+         setupTabSwitching() {
+        const taskTab = document.getElementById("taskTab");
+        const groupTab = document.getElementById("groupTab");
+        const taskSection = document.querySelector(".task-section");
+        const groupSection = document.querySelector(".group-section");
+        const createGroupTopBtn = document.getElementById("createGroupTopBtn");
 
-        setupTabSwitching() {
-          const taskTab = document.getElementById("taskTab");
-          const groupTab = document.getElementById("groupTab");
-          const taskSection = document.querySelector(".task-section");
-          const groupSection = document.querySelector(".group-section");
-          const createGroupTopBtn =
-            document.getElementById("createGroupTopBtn");
-
-          if (taskTab && groupTab && taskSection && groupSection) {
+        if (taskTab && groupTab && taskSection && groupSection) {
             taskTab.addEventListener("click", () => {
-              taskSection.style.display = "block";
-              groupSection.style.display = "none";
-              taskTab.classList.add("active");
-              groupTab.classList.remove("active");
-              if (createGroupTopBtn) createGroupTopBtn.style.display = "none";
+                taskSection.style.display = "block";
+                groupSection.style.display = "none";
+                taskTab.classList.add("active");
+                groupTab.classList.remove("active");
+                if (createGroupTopBtn) createGroupTopBtn.style.display = "none";
             });
 
             groupTab.addEventListener("click", () => {
-              groupSection.style.display = "block";
-              taskSection.style.display = "none";
-              groupTab.classList.add("active");
-              taskTab.classList.remove("active");
-              if (createGroupTopBtn) createGroupTopBtn.style.display = "flex";
+                groupSection.style.display = "block";
+                taskSection.style.display = "none";
+                groupTab.classList.add("active");
+                taskTab.classList.remove("active");
+                if (createGroupTopBtn) createGroupTopBtn.style.display = "flex";
             });
 
             // Initialize with tasks view
             taskSection.style.display = "block";
             groupSection.style.display = "none";
             if (createGroupTopBtn) createGroupTopBtn.style.display = "none";
-          }
         }
-
-        bindEvents() {
-          // Event delegation for close buttons
-          document.addEventListener("click", (e) => {
+    }
+    
+ bindEvents() {
+        // Event delegation for close buttons
+        document.addEventListener("click", (e) => {
             // Close modal when clicking X
             if (e.target.classList.contains("close")) {
-              const modal = e.target.closest(".modal");
-              if (modal) {
-                this.closeModal(modal);
-              }
+                const modal = e.target.closest(".modal");
+                if (modal) {
+                    this.closeModal(modal);
+                }
             }
 
             // Close modal when clicking cancel button
             if (e.target.classList.contains("btn-cancel")) {
-              const modal = e.target.closest(".modal");
-              if (modal) {
-                this.closeModal(modal);
-              }
+                const modal = e.target.closest(".modal");
+                if (modal) {
+                    this.closeModal(modal);
+                }
             }
 
             // Close modal when clicking outside
             if (e.target.classList.contains("modal")) {
-              this.closeModal(e.target);
+                this.closeModal(e.target);
             }
-          });
+        });
 
-          // Create Group Buttons - TOP AND BOTTOM
-          const createGroupTopBtn =
-            document.getElementById("createGroupTopBtn");
-          const createGroupBottomBtn = document.getElementById(
-            "createGroupBottomBtn"
-          );
-          const joinGroupBtn = document.getElementById("joinGroupBtn");
+        // Create Group Buttons
+        const createGroupTopBtn = document.getElementById("createGroupTopBtn");
+        const createGroupBottomBtn = document.getElementById("createGroupBottomBtn");
+        const joinGroupBtn = document.getElementById("joinGroupBtn");
 
-          if (createGroupTopBtn) {
-            createGroupTopBtn.addEventListener("click", () =>
-              this.openCreateGroupModal()
-            );
-          }
+        if (createGroupTopBtn) {
+            createGroupTopBtn.addEventListener("click", () => this.openCreateGroupModal());
+        }
 
-          if (createGroupBottomBtn) {
-            createGroupBottomBtn.addEventListener("click", () =>
-              this.openCreateGroupModal()
-            );
-          }
+        if (createGroupBottomBtn) {
+            createGroupBottomBtn.addEventListener("click", () => this.openCreateGroupModal());
+        }
 
-          if (joinGroupBtn) {
-            joinGroupBtn.addEventListener("click", () =>
-              this.openJoinGroupModal()
-            );
-          }
+        if (joinGroupBtn) {
+            joinGroupBtn.addEventListener("click", () => this.openJoinGroupModal());
+        }
 
-          // Form Submissions
-          document.addEventListener("submit", (e) => {
+        // Form Submissions
+        document.addEventListener("submit", (e) => {
             if (e.target.id === "createGroupForm") {
-              e.preventDefault();
-              this.handleCreateGroup(e);
+                e.preventDefault();
+                this.handleCreateGroup(e);
             }
 
             if (e.target.id === "editGroupForm") {
-              e.preventDefault();
-              this.handleEditGroup(e);
+                e.preventDefault();
+                this.handleEditGroup(e);
             }
 
             if (e.target.id === "createTaskForm") {
-              e.preventDefault();
-              this.handleCreateTask(e);
+                e.preventDefault();
+                this.handleCreateTask(e);
             }
-          });
 
-          // Button click handlers
-          document.addEventListener("click", (e) => {
+            if (e.target.id === "editTaskForm") {
+                e.preventDefault();
+                this.handleEditTask(e);
+            }
+        });
+
+        // Button click handlers
+        document.addEventListener("click", (e) => {
             if (e.target.id === "copyCode") {
-              this.copyInvitationCode();
+                this.copyInvitationCode();
             }
 
             if (e.target.id === "refreshCode") {
-              this.refreshInvitationCode();
+                this.refreshInvitationCode();
             }
 
             if (e.target.id === "deleteGroup") {
-              this.confirmDeleteGroup();
+                this.confirmDeleteGroup();
             }
 
             if (e.target.id === "joinGroupConfirmBtn") {
-              this.joinGroupWithCode();
+                this.joinGroupWithCode();
             }
-          });
-        }
 
-        // GROUP MANAGEMENT METHODS
-        openCreateGroupModal() {
-          console.log("Opening create group modal");
+            // Task status buttons
+            if (e.target.closest('.btn-status')) {
+                const btn = e.target.closest('.btn-status');
+                const taskId = btn.closest('.task-item')?.dataset.taskId;
+                const status = btn.textContent.trim().toLowerCase();
+                if (taskId) {
+                    this.updateTaskStatus(taskId, this.getStatusFromText(status));
+                }
+            }
 
-          const modal = document.getElementById("createGroupModal");
-          if (!modal) {
-            console.error("Create group modal not found in HTML");
-            return;
-          }
+            // Task edit buttons
+            if (e.target.closest('.btn-task-edit')) {
+                const btn = e.target.closest('.btn-task-edit');
+                const taskId = btn.closest('.task-item')?.dataset.taskId;
+                if (taskId) {
+                    this.editTask(taskId);
+                }
+            }
 
-          const form = document.getElementById("createGroupForm");
-          if (form) form.reset();
-
-          this.openModal(modal);
-        }
+            // Task delete buttons
+            if (e.target.closest('.btn-task-delete')) {
+                const btn = e.target.closest('.btn-task-delete');
+                const taskId = btn.closest('.task-item')?.dataset.taskId;
+                if (taskId) {
+                    this.deleteTask(taskId);
+                }
+            }
+        });
+    }
+    
 
         handleCreateGroup(e) {
           e.preventDefault();
@@ -2644,112 +2767,85 @@
 
           this.openModal(modal);
         }
-
-     joinGroupWithCode() {
-    console.log("=== DEBUG: joinGroupWithCode ===");
-    
-    const codeInput = document.getElementById("invitationCodeInput");
-    if (!codeInput) {
-        console.error("Code input not found");
-        return;
-    }
-
-    // Clean the code - remove spaces, ensure uppercase
-    const rawCode = codeInput.value;
-    const code = rawCode.trim().replace(/\s+/g, '').toUpperCase();
-    
-    console.log("Entered code:", code, "(raw:", rawCode, ")");
-    console.log("Code length:", code.length);
-
-    if (!code) {
-        alert("Please enter an invitation code");
-        return;
-    }
-
-    if (code.length !== 8) {
-        alert(`Invitation code must be 8 characters long. You entered ${code.length} characters.`);
-        console.log("Invalid length. Expected 8, got:", code.length);
-        return;
-    }
-
-    // DEBUG: Log all groups and their codes
-    console.log("All groups and their invitation codes:");
-    this.groups.forEach((group, index) => {
-        console.log(`${index + 1}. Group: "${group.name}"`);
-        console.log(`   Code: "${group.invitationCode}"`);
-        console.log(`   Code type: ${typeof group.invitationCode}`);
-        console.log(`   Code length: ${group.invitationCode ? group.invitationCode.length : 'N/A'}`);
-        console.log(`   Members: ${group.members.length}`);
-    });
-
-    // Case-insensitive comparison
-    const group = this.groups.find((g) => {
-        if (!g.invitationCode) {
-            console.log(`Group "${g.name}" has no invitation code!`);
-            return false;
+  joinGroupWithCode() {
+        console.log('=== JOIN GROUP DEBUG ===');
+        console.log('Current groups in memory:', this.groups);
+        console.log('Shared storage data:', localStorage.getItem('taskflow_shared_groups'));
+        
+        const codeInput = document.getElementById("invitationCodeInput");
+        if (!codeInput) {
+            console.error("Code input not found");
+            return;
         }
         
-        const groupCode = g.invitationCode.toString().toUpperCase().trim();
-        console.log(`Comparing: "${groupCode}" === "${code}" ? ${groupCode === code}`);
-        return groupCode === code;
-    });
-
-    if (!group) {
-        console.log("No group found with code:", code);
-        alert(`Invalid invitation code "${code}". Please check the code and try again.`);
+        // First, refresh from shared storage to get latest groups
+        this.refreshGroupsFromSharedStorage();
         
-        // Show available codes (for debugging)
-        const availableCodes = this.groups.map(g => g.invitationCode).filter(Boolean);
-        console.log("Available invitation codes:", availableCodes);
-        return;
+        const code = codeInput.value.trim().toUpperCase();
+        console.log('Trying to join with code:', code);
+        
+        if (!code) {
+            alert("Please enter an invitation code");
+            return;
+        }
+        
+        if (code.length !== 8) {
+            alert("Invitation code must be 8 characters long");
+            console.log('Invalid length:', code.length);
+            return;
+        }
+        
+        // Find group (case-insensitive)
+        const group = this.groups.find((g) => {
+            if (!g.invitationCode) return false;
+            console.log(`Checking group "${g.name}": ${g.invitationCode} vs ${code}`);
+            return g.invitationCode.toUpperCase() === code;
+        });
+        
+        if (!group) {
+            console.log('No group found with code:', code);
+            console.log('Available codes:', this.groups.map(g => g.invitationCode));
+            alert("Invalid invitation code. Please check the code and try again.");
+            return;
+        }
+        
+        console.log('Found group:', group.name);
+        
+        const currentUser = this.getCurrentUser();
+        console.log('Current user:', currentUser);
+        
+        // Check if already a member (case-insensitive email comparison)
+        const isAlreadyMember = group.members.some(
+            (member) => member.email.toLowerCase() === currentUser.email.toLowerCase()
+        );
+        
+        if (isAlreadyMember) {
+            alert("You are already a member of this group!");
+            return;
+        }
+        
+        // Add user to group
+        group.members.push({
+            id: this.generateId(),
+            name: currentUser.name,
+            email: currentUser.email,
+            role: "member",
+            joined: new Date().toISOString(),
+        });
+        
+        console.log('Group after adding member:', group);
+        
+        // Save to shared storage
+        this.saveGroups();
+        
+        // Force refresh for all tabs
+        this.refreshGroupsFromSharedStorage();
+        
+        this.closeModal(document.getElementById("joinGroupModal"));
+        this.showToast(`Successfully joined "${group.name}"!`, "success");
+        
+        console.log('=== JOIN GROUP COMPLETE ===');
     }
-
-    console.log("Found group:", group.name);
-
-    const currentUser = this.getCurrentUser();
-    console.log("Current user:", currentUser);
-
-    // Check if user is already a member
-    const isAlreadyMember = group.members.some(
-        (member) => member.email.toLowerCase() === currentUser.email.toLowerCase()
-    );
-
-    console.log("Is already member?", isAlreadyMember);
-
-    if (isAlreadyMember) {
-        alert(`You are already a member of "${group.name}"!`);
-        return;
-    }
-
-    // Add user to group
-    const newMember = {
-        id: this.generateId(),
-        name: currentUser.name,
-        email: currentUser.email,
-        role: "member",
-        joined: new Date().toISOString(),
-    };
-    
-    console.log("Adding new member:", newMember);
-    
-    group.members.push(newMember);
-    
-    // Save changes
-    this.saveGroups();
-    
-    // Verify save
-    console.log("Groups after save:", this.groups);
-    
-    // Close modal
-    this.closeModal(document.getElementById("joinGroupModal"));
-    
-    // Update UI
-    this.renderGroups();
-    
-    this.showToast(`Successfully joined "${group.name}"!`, "success");
-    
-    console.log("=== DEBUG: joinGroupWithCode COMPLETE ===");
-}
 
         openGroupManagement(group) {
           this.currentGroup = group;
@@ -3171,58 +3267,53 @@
             dueDateInput.min = today;
           }
         }
+ handleCreateGroup(e) {
+        e.preventDefault();
 
-        handleCreateTask(e) {
-          e.preventDefault();
+        const nameInput = document.getElementById("groupName");
+        const descriptionInput = document.getElementById("groupDescription");
 
-          const formData = new FormData(e.target);
-          const title = formData.get("title");
-          const description = formData.get("description");
-          const priority = formData.get("priority");
-          const dueDate = formData.get("dueDate");
-          const assignedTo = formData.get("assignedTo");
-
-          if (!title.trim()) {
-            this.showToast("Task title is required", "error");
+        if (!nameInput) {
+            console.error("Group name input not found");
             return;
-          }
-
-          const currentUser = this.getCurrentUser();
-          const isUnassigned = !assignedTo || assignedTo.trim() === "";
-
-          // Find assigned member if task is assigned
-          const assignedMember = isUnassigned
-            ? null
-            : this.currentGroup.members.find((m) => m.id === assignedTo);
-
-          const newTask = {
-            id: this.generateId(),
-            title: title.trim(),
-            description: description?.trim() || "",
-            priority: priority || "medium",
-            status: "pending",
-            dueDate: dueDate || null,
-            createdBy: currentUser.id,
-            createdByName: currentUser.name,
-            assignedTo: isUnassigned ? null : assignedTo, // Store as null for unassigned
-            assignedToName: isUnassigned
-              ? "Unassigned"
-              : assignedMember
-              ? assignedMember.name
-              : "Unassigned",
-            groupId: this.currentGroup.id,
-            groupName: this.currentGroup.name,
-            createdAt: new Date().toISOString(),
-            updatedAt: new Date().toISOString(),
-            isUnassigned: isUnassigned, // Add flag for easy checking
-          };
-
-          this.tasks.push(newTask);
-          this.saveTasks();
-          this.renderTasks();
-          this.closeModal(document.getElementById("createTaskModal"));
-          this.showToast("Task created successfully!", "success");
         }
+
+        const name = nameInput.value.trim();
+        const description = descriptionInput
+            ? descriptionInput.value.trim()
+            : "";
+
+        const validation = this.validateGroupName(name);
+        if (!validation.isValid) {
+            alert(`Group name violation: ${validation.message}`);
+            return;
+        }
+
+        const currentUser = this.getCurrentUser();
+
+        const newGroup = {
+            id: this.generateId(),
+            name: name,
+            description: description,
+            created: new Date().toISOString(),
+            members: [{
+                id: this.generateId(),
+                name: currentUser.name,
+                email: currentUser.email,
+                role: "admin",
+                joined: new Date().toISOString(),
+            }],
+            invitationCode: this.generateInvitationCode(),
+        };
+
+        console.log('Creating new group:', newGroup);
+
+        this.groups.push(newGroup);
+        this.saveGroups(); // This now saves to shared storage
+        this.renderGroups();
+        this.closeModal(document.getElementById("createGroupModal"));
+        this.showToast(`Group "${name}" created successfully! Invitation code: ${newGroup.invitationCode}`, "success");
+    }
 
         // FIXED: Now properly handles task visibility
         getTasksByStatus(status) {
