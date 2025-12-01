@@ -2449,6 +2449,16 @@ class GroupManager {
         // Listen for updates from shared storage
         this.setupSharedListeners();
     }
+     debugSharedStorage() {
+        console.log('=== SHARED STORAGE DEBUG ===');
+        console.log('Local (individual) storage:');
+        console.log('taskflow_groups:', localStorage.getItem('taskflow_groups'));
+        console.log('Shared storage:');
+        console.log('taskflow_shared_groups:', localStorage.getItem('taskflow_shared_groups'));
+        console.log('Memory groups:', this.groups);
+        console.log('SharedStorage instance:', this.sharedStorage);
+        console.log('=== END DEBUG ===');
+    }
     
     // Load groups from shared storage
     loadSharedGroups() {
@@ -2685,89 +2695,56 @@ class GroupManager {
     }
     
 
-        handleCreateGroup(e) {
-          e.preventDefault();
+         handleCreateGroup(e) {
+        e.preventDefault();
 
-          const nameInput = document.getElementById("groupName");
-          const descriptionInput = document.getElementById("groupDescription");
+        const nameInput = document.getElementById("groupName");
+        const descriptionInput = document.getElementById("groupDescription");
 
-          if (!nameInput) {
+        if (!nameInput) {
             console.error("Group name input not found");
             return;
-          }
+        }
 
-          const name = nameInput.value.trim();
-          const description = descriptionInput
+        const name = nameInput.value.trim();
+        const description = descriptionInput
             ? descriptionInput.value.trim()
             : "";
 
-          const validation = this.validateGroupName(name);
-          if (!validation.isValid) {
+        const validation = this.validateGroupName(name);
+        if (!validation.isValid) {
             alert(`Group name violation: ${validation.message}`);
             return;
-          }
+        }
 
-          const currentUser = this.getCurrentUser();
+        const currentUser = this.getCurrentUser();
 
-          const newGroup = {
+        const newGroup = {
             id: this.generateId(),
             name: name,
             description: description,
             created: new Date().toISOString(),
-            members: [
-              {
+            members: [{
                 id: this.generateId(),
                 name: currentUser.name,
                 email: currentUser.email,
                 role: "admin",
                 joined: new Date().toISOString(),
-              },
-            ],
+            }],
             invitationCode: this.generateInvitationCode(),
-          };
+        };
 
-          this.groups.push(newGroup);
-          this.saveGroups();
-          this.renderGroups();
-          this.closeModal(document.getElementById("createGroupModal"));
-          this.showToast(`Group "${name}" created successfully!`, "success");
-        }
+        console.log('Creating new group:', newGroup);
 
-        // JOIN GROUP FUNCTIONALITY
-        openJoinGroupModal() {
-          console.log("Opening join group modal");
-
-          let modal = document.getElementById("joinGroupModal");
-          if (!modal) {
-            modal = document.createElement("div");
-            modal.id = "joinGroupModal";
-            modal.className = "modal";
-            modal.innerHTML = `
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h3>Join a Group</h3>
-                        <span class="close">&times;</span>
-                    </div>
-                    <div class="form-group">
-                        <label for="invitationCodeInput">Enter Invitation Code</label>
-                        <input type="text" id="invitationCodeInput" placeholder="e.g., A1B2C3D4" maxlength="8" style="text-transform: uppercase">
-                        <small>Get the invitation code from the group owner or admin</small>
-                    </div>
-                    <div class="modal-actions">
-                        <button type="button" class="btn-cancel">Cancel</button>
-                        <button type="button" class="btn-create" id="joinGroupConfirmBtn">Join Group</button>
-                    </div>
-                </div>
-            `;
-            document.body.appendChild(modal);
-          }
-
-          const codeInput = document.getElementById("invitationCodeInput");
-          if (codeInput) codeInput.value = "";
-
-          this.openModal(modal);
-        }
-  joinGroupWithCode() {
+        this.groups.push(newGroup);
+        this.saveGroups(); // This now saves to shared storage
+        this.renderGroups();
+        this.closeModal(document.getElementById("createGroupModal"));
+        this.showToast(`Group "${name}" created successfully! Invitation code: ${newGroup.invitationCode}`, "success");
+    }
+    
+    // UPDATED joinGroupWithCode
+    joinGroupWithCode() {
         console.log('=== JOIN GROUP DEBUG ===');
         console.log('Current groups in memory:', this.groups);
         console.log('Shared storage data:', localStorage.getItem('taskflow_shared_groups'));
@@ -2846,7 +2823,6 @@ class GroupManager {
         
         console.log('=== JOIN GROUP COMPLETE ===');
     }
-
         openGroupManagement(group) {
           this.currentGroup = group;
           const currentUser = this.getCurrentUser();
@@ -4229,10 +4205,33 @@ class GroupManager {
         }
       }
 
-      // Initialize when page loads
-      document.addEventListener("DOMContentLoaded", function () {
-        window.groupManager = new GroupManager();
-      });
+      
+// Initialize when page loads
+document.addEventListener("DOMContentLoaded", function () {
+    window.groupManager = new GroupManager();
+    
+    // Add debug button (this goes OUTSIDE the GroupManager class)
+    const debugBtn = document.createElement('button');
+    debugBtn.textContent = 'Debug Storage';
+    debugBtn.style.position = 'fixed';
+    debugBtn.style.bottom = '10px';
+    debugBtn.style.right = '10px';
+    debugBtn.style.zIndex = '9999';
+    debugBtn.style.padding = '5px 10px';
+    debugBtn.style.background = '#365ee2';
+    debugBtn.style.color = 'white';
+    debugBtn.style.border = 'none';
+    debugBtn.style.borderRadius = '5px';
+    debugBtn.style.cursor = 'pointer';
+    
+    debugBtn.addEventListener('click', () => {
+        if (window.groupManager) {
+            window.groupManager.debugSharedStorage();
+        }
+    });
+    
+    document.body.appendChild(debugBtn);
+});
     </script>
   </body>
 </html>
